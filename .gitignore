@@ -1,0 +1,5 @@
+strange_loops
+strange_loops_test
+*.d
+*.o
+TAGS

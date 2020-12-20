@@ -1,0 +1,22 @@
+- controls
+  - all_start_stop: 70
+  - record_overdub_play: 71
+  - stop: 72
+  - undo_redo: 73
+- tracks
+  - {output: {device: Kronos SOUND, channel: 1}}
+  - {output: {device: Kronos SOUND, channel: 2}}
+  - {output: {device: Kronos SOUND, channel: 3}}
+  - {output: {device: Kronos SOUND, channel: 4}}
+  - {output: {device: Kronos SOUND, channel: 5}}
+  - {output: {device: Kronos SOUND, channel: 6}}
+  - {output: {device: Kronos SOUND, channel: 7}}
+  - {output: {device: Kronos SOUND, channel: 8}}
+  - {output: {device: Kronos SOUND, channel: 9}}
+  - {output: {device: Kronos SOUND, channel: 10}}
+  - {output: {device: Hydrasynth HYDRASYNTH KB, channel: 1}}
+  - {output: {device: Wavestation, channel: 1}}
+  - {output: {device: K2000R, channel: 1}}
+  - {output: {device: K2000R, channel: 2}}
+  - {output: {device: K2000R, channel: 3}}
+  - {output: {device: 1000PX, channel: 1}}
