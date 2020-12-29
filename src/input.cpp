@@ -72,7 +72,9 @@ void *read_thread(void *in_voidptr) {
 
 
 Input::Input(PmDeviceID device_id, const char *device_name, const char *name)
-  : Instrument(device_id, device_name, name), _running(false), read_pthread(nullptr)
+  : Instrument(device_id, device_name, name),
+    _track(nullptr), _running(false),
+    read_pthread(nullptr)
 {
 }
 
@@ -135,6 +137,10 @@ void Input::stop() {
   Instrument::stop();
 }
 
+void Input::set_track(Track *track) {
+  _track = track;
+}
+
 bool Input::start_midi() {
   PmError err = Pm_OpenInput(&stream, device_id, 0, MIDI_BUFSIZ, 0, 0);
   if (err != 0) {
@@ -169,15 +175,26 @@ void Input::read(PmMessage msg) {
   if (!enabled && real_port())
     return;
 
-  unsigned char status = Pm_MessageStatus(msg);
+  int status = Pm_MessageStatus(msg);
+  int high_nibble = status & 0xf0;
+  int data2 = Pm_MessageData2(msg);
+
+  if (_track)
+    _track->midi_in(msg);
+
+  // Remember note ons, note offs, and sustain controller messages.
+  if (is_note_on(msg))
+    notes_on[status & 0x0f][Pm_MessageData2(msg)] = true;
+  else if (is_note_off(msg))
+    notes_on[status & 0x0f][Pm_MessageData2(msg)] = false;
+  else if (is_sustain(msg))
+    sustains_on[status & 0x0f] = Pm_MessageData2(msg) > 0;
 
   // When testing, remember the messages we've seen. This could be made
   // more efficient by doing a bulk copy before or after this for loop,
   // making sure not to copy over the end of received_messages.
   if (!real_port() && num_io_messages < MIDI_BUFSIZ-1)
     io_messages[num_io_messages++] = msg;
-
-  track->midi_in(msg);
 }
 
 // Removes a single PmMessages from our message queue in a thread-safe
@@ -191,4 +208,27 @@ PmMessage Input::message_from_read_queue() {
   }
   message_queue_mutex.unlock();
   return msg;
+}
+
+bool Input::is_note_on(PmMessage msg) {
+  int status = Pm_MessageStatus(msg);
+  if ((status & 0xf0) != NOTE_ON)
+    return false;
+  int velocity = Pm_MessageData2(msg);
+  return velocity > 0;
+}
+
+bool Input::is_note_off(PmMessage msg) {
+  int status = Pm_MessageStatus(msg);
+  if (status < NOTE_ON)
+    return true;
+  if ((status & 0xf0) != NOTE_ON)
+    return false;
+  int velocity = Pm_MessageData2(msg);
+  return velocity == 0;
+}
+
+bool Input::is_sustain(PmMessage msg) {
+  int status = Pm_MessageStatus(msg);
+  return (status & 0xf0) == CONTROLLER && Pm_MessageData1(msg) == CC_SUSTAIN;
 }

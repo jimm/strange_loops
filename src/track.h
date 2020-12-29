@@ -5,11 +5,6 @@
 #include <portmidi.h>
 #include "output.h"
 
-enum TrackButtonActions {
-  RecordOverdubPlay,
-  StopClear
-};
-
 enum TrackState {
   Empty,                        // [RecordOverdubPlay] -> recording
   Recording,                    // [RecordOverdubPlay] -> overdubbing
@@ -23,14 +18,23 @@ enum TrackState {
 
 class Track {
 public:
-  Output *output;
   TrackState state;
-  PmTimestamp start_timestamp;
-  vector<PmEvent> events;
 
   Track();
 
+  void record();
+  void overdub();
+  void play();
+  void stop();
+  void clear();
+
   void midi_in(PmMessage msg);
+  void send(PmEvent *buf, int n);
+
+private:
+  Output *output;
+  PmTimestamp start_timestamp;
+  vector<PmEvent> events;
 };
 
 #endif /* TRACK_H */

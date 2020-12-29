@@ -24,6 +24,8 @@ public:
   void start();
   void stop();
 
+  void set_track(Track *track);
+
   void enqueue(PmEvent *, int);
   void read(PmMessage);
   PmMessage message_from_read_queue();
@@ -33,11 +35,15 @@ protected:
   virtual bool start_midi();
 
 private:
-  Track *track;                 // may be null
+  Track *_track;                // may be null
   bool _running;
 
-  vector<bool> notes_off[MIDI_CHANNELS][NOTES_PER_CHANNEL];
-  vector<bool> sustains_off[MIDI_CHANNELS];
+  bool is_note_on(PmMessage msg);
+  bool is_note_off(PmMessage msg);
+  bool is_sustain(PmMessage msg);
+
+  bool notes_on[MIDI_CHANNELS][NOTES_PER_CHANNEL];
+  bool sustains_on[MIDI_CHANNELS];
   queue<PmMessage> message_queue;
   mutex message_queue_mutex;
   pthread_t read_pthread;

@@ -3,7 +3,7 @@
 
 static StrangeLoops *sl_instance = nullptr;
 
-StrangeLoops *StrageLoops_instance() {
+StrangeLoops *StrangeLoops_instance() {
   return sl_instance;
 }
 
@@ -24,7 +24,7 @@ void StrangeLoops::panic(bool send_notes_off) {
       for (int j = 0; j < 128; ++j)
         buf[j].message = Pm_Message(NOTE_OFF + i, j, 0);
       for (auto &track : scenes[curr_scene_index].tracks)
-        track.output->write(buf, 128);
+        track.send(buf, 128);
     }
   }
   else {
@@ -33,6 +33,6 @@ void StrangeLoops::panic(bool send_notes_off) {
       buf[i].timestamp = 0;
     }
     for (auto &track : scenes[curr_scene_index].tracks)
-      track.output->write(buf, 16);
+      track.send(buf, 16);
   }
 }

@@ -60,11 +60,11 @@ void load(const char *path, bool testing) {
 }
 
 void run_curses() {
-  // StrangeLoops_instance()->start();
-  // GUI gui(StrangeLoops_instance());
-  // gui.run();
-  // // Don't save PM above and use it here. User might have loaded a new one.
-  // StrangeLoops_instance()->stop();
+  StrangeLoops_instance()->start();
+  GUI gui(StrangeLoops_instance());
+  gui.run();
+  // Don't save PM above and use it here. User might have loaded a new one.
+  StrangeLoops_instance()->stop();
 }
 
 void usage(const char *prog_name) {
@@ -123,13 +123,11 @@ int main(int argc, char * const *argv) {
     exit(0);
   }
 
-  if (argc == 0) {
-    usage(prog_name);
-    exit(1);
-  }
+  StrangeLoops strange_loops;   // create on stack
 
   initialize();
-  load(argv[0], opts.testing);
+  if (argc > 0)
+    load(argv[0], opts.testing);
   run_curses();
 
   exit(0);

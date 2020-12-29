@@ -6,6 +6,7 @@
 #include "../consts.h"
 #include "../strange_loops.h"
 #include "geometry.h"
+#include "tracks_window.h"
 #include "prompt_window.h"
 #include "help_window.h"
 
@@ -83,6 +84,7 @@ void GUI::config_curses() {
 }
 
 void GUI::create_windows() {
+  tracks_window = new TracksWindow(geom_tracks_rect(), "Tracks", sl->current_scene().tracks);
   message = new Window(geom_message_rect(), "");
 
   scrollok(stdscr, false);
@@ -99,6 +101,7 @@ void GUI::free_windows() {
 
 void GUI::refresh_all() {
   set_window_data();
+  tracks_window->draw();
   message->draw();
   wnoutrefresh(stdscr);
   doupdate();

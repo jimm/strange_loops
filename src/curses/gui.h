@@ -4,6 +4,7 @@
 using namespace std;
 
 class Window;
+class TracksWindow;
 class StrangeLoops;
 
 class GUI {
@@ -23,6 +24,7 @@ private:
   StrangeLoops *sl;
 
   Window *message;
+  TracksWindow *tracks_window;
 
   int clear_msg_secs;
   int clear_msg_id;
