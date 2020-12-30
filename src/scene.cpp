@@ -1,8 +1,15 @@
 #include "scene.h"
 
 Scene::Scene()
-  : active_track(-1), scene_length(0L)
+  : _active_track_index(-1), _scene_length(0L), _bpm(120.0)
 {
+}
+
+void Scene::set_bpm(float bpm) {
+  if (_bpm != bpm) {
+    _bpm = bpm;
+    // changed();
+  }
 }
 
 void Scene::take_action(int track_num, Action action) {
@@ -11,21 +18,26 @@ void Scene::take_action(int track_num, Action action) {
   switch (action) {
   case AllStartStop:
     for (int i = 0; i < 16; ++i)
-      tracks[i].stop();
-    active_track = NO_ACTIVE_TRACK;
+      _tracks[i].stop();
+    _active_track_index = NO_ACTIVE_TRACK;
     break;
   case UndoRedo:
     break;
   case TrackRecordOverdubPlay:
-    track = &tracks[track_num];
+    track = &_tracks[track_num];
     break;
   case TrackStopClear:
-    track = &tracks[track_num];
+    track = &_tracks[track_num];
     break;
   case TrackEdit:
-    track = &tracks[track_num];
+    track = &_tracks[track_num];
     break;
   case Save:
     break;
   }
+}
+
+void Scene::all_tracks_send(PmEvent *buf, int num_events) {
+  for (auto &track : _tracks)
+    track.send(buf, num_events);
 }

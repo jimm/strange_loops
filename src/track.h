@@ -28,13 +28,21 @@ public:
   void stop();
   void clear();
 
+  Output *output() { return _output; }
+  int channel() { return _channel; }
+
+  void set_output(Output *output) { _output = output; }
+  void set_channel(int channel) { _channel = channel; }
+
   void midi_in(PmMessage msg);
   void send(PmEvent *buf, int n);
 
 private:
-  Output *output;
-  PmTimestamp start_timestamp;
-  vector<PmEvent> events;
+  Output *_output;
+  int _channel;
+  PmTimestamp _start_timestamp;
+  vector<PmEvent> _events;
+  PmEvent _event_buffer[128];
 };
 
 #endif /* TRACK_H */

@@ -1,6 +1,9 @@
 #ifndef CONSTS_H
 #define CONSTS_H
 
+// StrangeLoops consts
+#define UNDEFINED -1
+
 // Number of MIDI channels
 #define MIDI_CHANNELS 16
 // Number of note per MIDI channel
