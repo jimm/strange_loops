@@ -4,7 +4,6 @@
 using namespace std;
 
 class Window;
-class TracksWindow;
 class StrangeLoops;
 
 class GUI {
@@ -21,21 +20,21 @@ public:
   int clear_message_id() { return clear_msg_id; }
 
 private:
-  StrangeLoops *sl;
-
+  StrangeLoops *sloops;
   Window *message;
-  TracksWindow *tracks_window;
 
   int clear_msg_secs;
   int clear_msg_id;
 
   void event_loop();
   void config_curses();
+  void init_colors();
   void create_windows();
   void resize_windows();
   void free_windows();
   void refresh_all();
   void set_window_data();
+  void draw_tracks();
   void close_screen();
   void help();
 };

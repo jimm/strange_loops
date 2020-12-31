@@ -5,7 +5,6 @@ typedef struct rect {
   int row, col, height, width;
 } rect;
 
-rect geom_tracks_rect();
 rect geom_message_rect();
 rect geom_info_rect();
 rect geom_help_rect();

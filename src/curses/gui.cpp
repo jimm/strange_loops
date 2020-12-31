@@ -6,19 +6,26 @@
 #include "../consts.h"
 #include "../strange_loops.h"
 #include "geometry.h"
-#include "tracks_window.h"
 #include "prompt_window.h"
 #include "help_window.h"
 
 
 static GUI *g_instance = 0;
 
+enum TrackStateColorPair {
+  TC_Empty = 1,
+  TC_Recording,
+  TC_Overdubbing,
+  TC_Playing,
+  TC_Stopped
+};
+
 GUI *gui_instance() {
   return g_instance;
 }
 
-GUI::GUI(StrangeLoops *sloops)
-  : sl(sloops), clear_msg_id(0)
+GUI::GUI(StrangeLoops *sl)
+  : sloops(sl), clear_msg_id(0)
 {
   g_instance = this;
 }
@@ -30,6 +37,7 @@ GUI::~GUI() {
 
 void GUI::run() {
   config_curses();
+  init_colors();
   create_windows();
   event_loop();
   clear();
@@ -53,7 +61,7 @@ void GUI::event_loop() {
       break;
     case '\e':                  /* escape */
       show_message("Sending panic...");
-      sl->panic(prev_cmd == '\e');
+      sloops->panic(prev_cmd == '\e');
       show_message("Panic sent");
       clear_message_after(5);
       break;
@@ -67,15 +75,16 @@ void GUI::event_loop() {
     prev_cmd = ch;
 
     // TODO messages and code keys
-    /* msg_name = @sl->message_bindings[ch]; */
-    /* @sl->send_message(msg_name) if msg_name; */
-    /* code_key = @sl->code_bindings[ch]; */
+    /* msg_name = @sloops->message_bindings[ch]; */
+    /* @sloops->send_message(msg_name) if msg_name; */
+    /* code_key = @sloops->code_bindings[ch]; */
     /* code_key.call if code_key; */
   }
 }
 
 void GUI::config_curses() {
   initscr();
+  start_color();
   cbreak();                     /* unbuffered input */
   noecho();                     /* do not show typed keys */
   keypad(stdscr, true);         /* enable arrow keys and window resize as keys */
@@ -83,8 +92,15 @@ void GUI::config_curses() {
   curs_set(0);                  /* cursor: 0 = invisible, 1 = normal */
 }
 
+void GUI::init_colors() {
+  init_pair(TC_Empty, COLOR_WHITE, COLOR_BLACK);
+  init_pair(TC_Recording, COLOR_WHITE, COLOR_RED);
+  init_pair(TC_Overdubbing, COLOR_WHITE, COLOR_CYAN);
+  init_pair(TC_Playing, COLOR_WHITE, COLOR_GREEN);
+  init_pair(TC_Stopped, COLOR_WHITE, COLOR_BLUE);
+}
+
 void GUI::create_windows() {
-  tracks_window = new TracksWindow(geom_tracks_rect(), "Tracks", sl->current_scene().tracks);
   message = new Window(geom_message_rect(), "");
 
   scrollok(stdscr, false);
@@ -101,13 +117,65 @@ void GUI::free_windows() {
 
 void GUI::refresh_all() {
   set_window_data();
-  tracks_window->draw();
+  draw_tracks();
   message->draw();
   wnoutrefresh(stdscr);
   doupdate();
 }
 
 void GUI::set_window_data() {
+}
+
+void GUI::draw_tracks() {
+  for (int i = 0; i < 16; ++i) {
+    Track &track = sloops->current_scene().tracks[i];
+    int track_num = i + 1;
+    int col = i * 10 + 2;
+    TrackStateColorPair color_pair = TC_Empty;
+
+    // TODO set track state color
+    switch (track.state) {
+    case Empty:
+      color_pair = TC_Empty;
+      break;
+    case Recording:
+      color_pair = TC_Recording;
+      break;
+    case Overdubbing:
+      color_pair = TC_Overdubbing;
+      break;
+    case Playing:
+      color_pair = TC_Playing;
+      break;
+    case Stopped:
+      color_pair = TC_Stopped;
+      break;
+    }
+
+    color_set(color_pair, nullptr);
+
+    move(1, col);
+    addstr("        ");
+
+    move(2, col);
+    addstr("   ");
+
+    if (track_num < 10)
+      addch(' ');
+    else {
+      attron(A_BOLD);
+      addch('0' + (track_num / 10));
+    }
+    attron(A_BOLD);
+    addch('0' + track_num % 10);
+    attroff(A_BOLD);
+
+    addstr("   ");
+
+    move(3, col);
+    addstr("        ");
+  }
+  use_default_colors();
 }
 
 void GUI::close_screen() {

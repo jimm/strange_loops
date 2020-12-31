@@ -6,16 +6,6 @@
 
 inline int INFO_WIDTH() { return COLS * 2 / 3; }
 
-rect geom_tracks_rect() {
-  rect r;
-
-  r.row = 0;
-  r.col = 0;
-  r.height = LINES - 1;
-  r.width = COLS;
-  return r;
-}
-
 rect geom_message_rect() {
   rect r;
 
