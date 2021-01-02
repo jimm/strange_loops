@@ -19,10 +19,10 @@ rect geom_message_rect() {
 rect geom_track_editor_rect() {
   rect r;
 
-  r.row = 3;
-  r.col = 3;
-  r.height = LINES - 6;
-  r.width = COLS - 6;
+  r.row = LINES / 6;
+  r.col = (COLS - 69) / 2;
+  r.height = 21;
+  r.width = 69;
   return r;
 }
 

@@ -1,4 +1,5 @@
 #include <sstream>
+#include <map>
 #include <stdlib.h>
 #include <ncurses.h>
 #include <unistd.h>
@@ -6,11 +7,20 @@
 #include "../consts.h"
 #include "../strange_loops.h"
 #include "geometry.h"
+#include "track_editor.h"
 #include "prompt_window.h"
 #include "help_window.h"
 
 
 static GUI *g_instance = 0;
+static map<int, int> char_to_track_num {
+  // play
+  {1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 7},
+  {'a', 8}, {'s', 9}, {'d', 10}, {'f', 11}, {'g', 12}, {'h', 13}, {'j', 14}, {'k', 15},
+  // stop
+  {'q', 0}, {'w', 1}, {'e', 2}, {'r', 3}, {'t', 4}, {'y', 5}, {'u', 6}, {'i', 7},
+  {'z', 8}, {'x', 9}, {'c', 10}, {'v', 11}, {'b', 12}, {'n', 13}, {'m', 14}, {',', 15}
+};
 
 enum TrackStateColorPair {
   TC_Empty = 1,
@@ -55,38 +65,18 @@ void GUI::event_loop() {
     refresh_all();
     ch = getch();
     switch (ch) {
-    case '1': sloops->current_scene().take_action(0, TrackRecordOverdubPlay); break;
-    case '2': sloops->current_scene().take_action(1, TrackRecordOverdubPlay); break;
-    case '3': sloops->current_scene().take_action(2, TrackRecordOverdubPlay); break;
-    case '4': sloops->current_scene().take_action(3, TrackRecordOverdubPlay); break;
-    case '5': sloops->current_scene().take_action(4, TrackRecordOverdubPlay); break;
-    case '6': sloops->current_scene().take_action(5, TrackRecordOverdubPlay); break;
-    case '7': sloops->current_scene().take_action(6, TrackRecordOverdubPlay); break;
-    case '8': sloops->current_scene().take_action(7, TrackRecordOverdubPlay); break;
-    case 'a': sloops->current_scene().take_action(8, TrackRecordOverdubPlay); break;
-    case 's': sloops->current_scene().take_action(9, TrackRecordOverdubPlay); break;
-    case 'd': sloops->current_scene().take_action(10, TrackRecordOverdubPlay); break;
-    case 'f': sloops->current_scene().take_action(11, TrackRecordOverdubPlay); break;
-    case 'g': sloops->current_scene().take_action(12, TrackRecordOverdubPlay); break;
-    case 'h': sloops->current_scene().take_action(13, TrackRecordOverdubPlay); break;
-    case 'j': sloops->current_scene().take_action(14, TrackRecordOverdubPlay); break;
-    case 'k': sloops->current_scene().take_action(15, TrackRecordOverdubPlay); break;
-    case 'q': sloops->current_scene().take_action(0, TrackStopClear); break;
-    case 'w': sloops->current_scene().take_action(1, TrackStopClear); break;
-    case 'e': sloops->current_scene().take_action(2, TrackStopClear); break;
-    case 'r': sloops->current_scene().take_action(3, TrackStopClear); break;
-    case 't': sloops->current_scene().take_action(4, TrackStopClear); break;
-    case 'y': sloops->current_scene().take_action(5, TrackStopClear); break;
-    case 'u': sloops->current_scene().take_action(6, TrackStopClear); break;
-    case 'i': sloops->current_scene().take_action(7, TrackStopClear); break;
-    case 'z': sloops->current_scene().take_action(8, TrackStopClear); break;
-    case 'x': sloops->current_scene().take_action(9, TrackStopClear); break;
-    case 'c': sloops->current_scene().take_action(10, TrackStopClear); break;
-    case 'v': sloops->current_scene().take_action(11, TrackStopClear); break;
-    case 'b': sloops->current_scene().take_action(12, TrackStopClear); break;
-    case 'n': sloops->current_scene().take_action(13, TrackStopClear); break;
-    case 'm': sloops->current_scene().take_action(14, TrackStopClear); break;
-    case ',': sloops->current_scene().take_action(15, TrackStopClear); break;
+    case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8':
+    case 'a': case 's': case 'd': case 'f': case 'g': case 'h': case 'j': case 'k':
+      sloops->current_scene().take_action(char_to_track_num[ch], TrackRecordOverdubPlay);
+      break;
+    case 'q': case 'w': case 'e': case 'r': case 't': case 'y': case 'u': case 'i':
+    case 'z': case 'x': case 'c': case 'v': case 'b': case 'n': case 'm': case ',':
+      sloops->current_scene().take_action(char_to_track_num[ch], TrackStopClear);
+      break;
+    case '`':
+      ch = getch();
+      edit_track(char_to_track_num[ch]);
+      break;
     case '?':
       help();
       break;
@@ -104,13 +94,16 @@ void GUI::event_loop() {
       break;
     }
     prev_cmd = ch;
-
-    // TODO messages and code keys
-    /* msg_name = @sloops->message_bindings[ch]; */
-    /* @sloops->send_message(msg_name) if msg_name; */
-    /* code_key = @sloops->code_bindings[ch]; */
-    /* code_key.call if code_key; */
   }
+}
+
+void GUI::edit_track(int track_num) {
+  TrackEditor *ed = new TrackEditor(
+    geom_track_editor_rect(), "Track Editor",
+    sloops->outputs(), sloops->current_scene().track(track_num)
+  );
+  ed->run();
+  delete ed;
 }
 
 void GUI::config_curses() {

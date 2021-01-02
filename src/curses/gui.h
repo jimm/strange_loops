@@ -27,6 +27,9 @@ private:
   int clear_msg_id;
 
   void event_loop();
+
+  void edit_track(int track_num);
+
   void config_curses();
   void init_colors();
   void create_windows();
