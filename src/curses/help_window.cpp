@@ -44,18 +44,27 @@ HelpWindow::~HelpWindow() {
 
 void HelpWindow::draw() {
   Window::draw();
-  int row = 1;
+  int row = 2;
   for (auto& line : *lines) {
-    wmove(win, row++, 1);
+    wmove(win, row++, 2);
     waddstr(win, line);
   }
 }
 
 const char *HelpWindow::read_help() {
   return
-"h, ? - Help\n" \
+"| Track | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 | 11 | 12 | 13 | 14 | 15 | 16 |\n" \
+"| Play  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | a  |  s | d  | f  | g  | h  | j  | k  |\n" \
+"| Stop  | q | w | e | r | t | y | u | i | z  |  x | c  | v  | b  | n  | m  | ,  |\n" \
+"\n" \
+"Prefix Commands\n" \
+"\n" \
+"`  Edit track name, output, channel, program change\n" \
+"=  Change BPM (tempo)\n" \
+"\n" \
+"? - This help\n" \
 "\n" \
 "ESC  - Panic (ESC ESC sends note-offs)\n" \
 "\n" \
-"q    - quit";
+"\\    - Quit";
 }

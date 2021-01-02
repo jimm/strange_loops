@@ -1,3 +1,4 @@
+#include <iostream>
 #include <stdlib.h>
 #include <string.h>
 #include "window.h"
@@ -72,12 +73,3 @@ void Window::make_fit(const char *str, int reduce_max_len_by, char *outbuf) {
   strncpy(outbuf, str, newlen);
   outbuf[newlen] = 0;
 }
-
-#ifdef DEBUG
-
-void Window::debug() {
-  fprintf(stderr, "window %p, win %p, title_prefix %s, title %s\n",
-          this, win, title_prefix.c_str(), title.c_str());
-}
-
-#endif

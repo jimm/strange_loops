@@ -50,13 +50,44 @@ void GUI::event_loop() {
   bool done = FALSE;
   int ch, prev_cmd = 0;
   PromptWindow *pwin;
-  string name_regex;
 
   while (!done) {
     refresh_all();
     ch = getch();
     switch (ch) {
-    case 'h': case '?':
+    case '1': sloops->current_scene().take_action(0, TrackRecordOverdubPlay); break;
+    case '2': sloops->current_scene().take_action(1, TrackRecordOverdubPlay); break;
+    case '3': sloops->current_scene().take_action(2, TrackRecordOverdubPlay); break;
+    case '4': sloops->current_scene().take_action(3, TrackRecordOverdubPlay); break;
+    case '5': sloops->current_scene().take_action(4, TrackRecordOverdubPlay); break;
+    case '6': sloops->current_scene().take_action(5, TrackRecordOverdubPlay); break;
+    case '7': sloops->current_scene().take_action(6, TrackRecordOverdubPlay); break;
+    case '8': sloops->current_scene().take_action(7, TrackRecordOverdubPlay); break;
+    case 'a': sloops->current_scene().take_action(8, TrackRecordOverdubPlay); break;
+    case 's': sloops->current_scene().take_action(9, TrackRecordOverdubPlay); break;
+    case 'd': sloops->current_scene().take_action(10, TrackRecordOverdubPlay); break;
+    case 'f': sloops->current_scene().take_action(11, TrackRecordOverdubPlay); break;
+    case 'g': sloops->current_scene().take_action(12, TrackRecordOverdubPlay); break;
+    case 'h': sloops->current_scene().take_action(13, TrackRecordOverdubPlay); break;
+    case 'j': sloops->current_scene().take_action(14, TrackRecordOverdubPlay); break;
+    case 'k': sloops->current_scene().take_action(15, TrackRecordOverdubPlay); break;
+    case 'q': sloops->current_scene().take_action(0, TrackStopClear); break;
+    case 'w': sloops->current_scene().take_action(1, TrackStopClear); break;
+    case 'e': sloops->current_scene().take_action(2, TrackStopClear); break;
+    case 'r': sloops->current_scene().take_action(3, TrackStopClear); break;
+    case 't': sloops->current_scene().take_action(4, TrackStopClear); break;
+    case 'y': sloops->current_scene().take_action(5, TrackStopClear); break;
+    case 'u': sloops->current_scene().take_action(6, TrackStopClear); break;
+    case 'i': sloops->current_scene().take_action(7, TrackStopClear); break;
+    case 'z': sloops->current_scene().take_action(8, TrackStopClear); break;
+    case 'x': sloops->current_scene().take_action(9, TrackStopClear); break;
+    case 'c': sloops->current_scene().take_action(10, TrackStopClear); break;
+    case 'v': sloops->current_scene().take_action(11, TrackStopClear); break;
+    case 'b': sloops->current_scene().take_action(12, TrackStopClear); break;
+    case 'n': sloops->current_scene().take_action(13, TrackStopClear); break;
+    case 'm': sloops->current_scene().take_action(14, TrackStopClear); break;
+    case ',': sloops->current_scene().take_action(15, TrackStopClear); break;
+    case '?':
       help();
       break;
     case '\e':                  /* escape */
@@ -65,7 +96,7 @@ void GUI::event_loop() {
       show_message("Panic sent");
       clear_message_after(5);
       break;
-    case 'q':
+    case '\\':
       done = TRUE;
       break;
     case KEY_RESIZE:
@@ -117,6 +148,7 @@ void GUI::free_windows() {
 
 void GUI::refresh_all() {
   set_window_data();
+  clear();
   draw_tracks();
   message->draw();
   wnoutrefresh(stdscr);
@@ -128,9 +160,10 @@ void GUI::set_window_data() {
 
 void GUI::draw_tracks() {
   for (int i = 0; i < 16; ++i) {
-    Track &track = sloops->current_scene().tracks[i];
+    Track &track = sloops->current_scene().track(i);
     int track_num = i + 1;
-    int col = i * 10 + 2;
+    int row = i < 8 ? 1 : 6;
+    int col = (i < 8 ? i : i - 8) * 10 + 2;
     TrackStateColorPair color_pair = TC_Empty;
 
     // TODO set track state color
@@ -154,10 +187,10 @@ void GUI::draw_tracks() {
 
     color_set(color_pair, nullptr);
 
-    move(1, col);
+    move(row++, col);
     addstr("        ");
 
-    move(2, col);
+    move(row++, col);
     addstr("   ");
 
     if (track_num < 10)
@@ -172,8 +205,13 @@ void GUI::draw_tracks() {
 
     addstr("   ");
 
-    move(3, col);
+    move(row++, col);
     addstr("        ");
+
+    color_set(0, nullptr);
+    move(row, col);
+    std::string truncated_name = track.name.substr(0, 8);
+    addstr(truncated_name.c_str());
   }
   use_default_colors();
 }

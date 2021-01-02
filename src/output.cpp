@@ -1,3 +1,5 @@
+#include <iostream>
+#include <iomanip>
 #include <stdlib.h>
 #include <string.h>
 #include <portmidi.h>
@@ -33,7 +35,9 @@ void Output::write(PmEvent *buf, int len) {
                 name.c_str(), Pm_GetErrorText(err));
         error_message(err_msg_buf);
         for (int i = 0; i < len; ++i)
-          fprintf(stderr, "msg %d\t%08x\n", i,buf[i].message);
+          cerr << "msg " << i << "\t"
+               << setw(8) << setfill('0') << buf[i].message
+               << "\n";
       }
     }
   }

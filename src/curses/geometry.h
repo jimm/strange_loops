@@ -6,6 +6,7 @@ typedef struct rect {
 } rect;
 
 rect geom_message_rect();
+rect geom_track_editor_rect();
 rect geom_info_rect();
 rect geom_help_rect();
 rect geom_prompt_rect();

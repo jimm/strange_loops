@@ -16,6 +16,16 @@ rect geom_message_rect() {
   return r;
 }
 
+rect geom_track_editor_rect() {
+  rect r;
+
+  r.row = 3;
+  r.col = 3;
+  r.height = LINES - 6;
+  r.width = COLS - 6;
+  return r;
+}
+
 rect geom_info_rect() {
   rect r;
 

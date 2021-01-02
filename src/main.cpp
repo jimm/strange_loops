@@ -1,8 +1,10 @@
 #include <iostream>
+#include <iomanip>
 #include <getopt.h>
 #include <libgen.h>
 #include "error.h"
 #include "strange_loops.h"
+#include "device.h"
 #include "curses/gui.h"
 
 struct opts {
@@ -11,41 +13,39 @@ struct opts {
 } opts;
 
 void list_devices(const char *title, const PmDeviceInfo *infos[], int num_devices) {
-  printf("%s:\n", title);
+  cout << title << "\n";
   for (int i = 0; i < num_devices; ++i)
     if (infos[i] != nullptr) {
       const char *name = infos[i]->name;
       const char *q = (name[0] == ' ' || name[strlen(name)-1] == ' ') ? "\"" : "";
-      printf("  %2d: %s%s%s%s\n", i, q, name, q, infos[i]->opened ? " (open)" : "");
+      cout << "  " << setw(2) << i << ": "
+           << q << name << q
+           << (infos[i]->opened ? " (open)" : "")
+           << "\n";
     }
 }
 
 void list_all_devices() {
-  int num_devices = Pm_CountDevices();
-  const PmDeviceInfo *inputs[num_devices], *outputs[num_devices];
+  int max_instruments = num_devices();
+  const PmDeviceInfo *inputs[max_instruments], *outputs[max_instruments];
 
-  for (int i = 0; i < num_devices; ++i) {
-    const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-    inputs[i] = info->input ? info : 0;
-    outputs[i] = info->output ? info : 0;
+  for (auto &pair : devices()) {
+    int index = pair.first;
+    auto info = pair.second;
+    inputs[index] = info->input ? info : nullptr;
+    outputs[index] = info->output ? info : nullptr;
   }
 
-  list_devices("Inputs", inputs, num_devices);
-  list_devices("Outputs", outputs, num_devices);
+  list_devices("Inputs", inputs, max_instruments);
+  list_devices("Outputs", outputs, max_instruments);
 }
 
 void cleanup() {
-  PmError err = Pm_Terminate();
-  if (err != 0)
-    fprintf(stderr, "error terminating PortMidi: %s\n", Pm_GetErrorText(err));
+  stop_portmidi();
 }
 
 void initialize() {
-  PmError err = Pm_Initialize();
-  if (err != 0) {
-    fprintf(stderr, "error initializing PortMidi: %s\n", Pm_GetErrorText(err));
-    exit(1);
-  }
+  start_portmidi();
   atexit(cleanup);
 }
 
@@ -122,8 +122,6 @@ int main(int argc, char * const *argv) {
     list_all_devices();
     exit(0);
   }
-
-  StrangeLoops strange_loops;   // create on stack
 
   initialize();
   if (argc > 0)
