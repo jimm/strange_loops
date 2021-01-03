@@ -15,11 +15,15 @@
 static GUI *g_instance = 0;
 static map<int, int> char_to_track_num {
   // play
-  {1, 0}, {2, 1}, {3, 2}, {4, 3}, {5, 4}, {6, 5}, {7, 6}, {8, 7},
+  {'1', 0}, {'2', 1}, {'3', 2}, {'4', 3}, {'5', 4}, {'6', 5}, {'7', 6}, {'8', 7},
   {'a', 8}, {'s', 9}, {'d', 10}, {'f', 11}, {'g', 12}, {'h', 13}, {'j', 14}, {'k', 15},
   // stop
   {'q', 0}, {'w', 1}, {'e', 2}, {'r', 3}, {'t', 4}, {'y', 5}, {'u', 6}, {'i', 7},
   {'z', 8}, {'x', 9}, {'c', 10}, {'v', 11}, {'b', 12}, {'n', 13}, {'m', 14}, {',', 15}
+};
+static int track_chars[16] = {
+  '1', '2', '3', '4', '5', '6', '7', '8',
+  'a', 's', 'd', 'f', 'g', 'h', 'j', 'k'
 };
 
 enum TrackStateColorPair {
@@ -75,19 +79,27 @@ void GUI::event_loop() {
       break;
     case '`':
       ch = getch();
-      edit_track(char_to_track_num[ch]);
+      try {
+        edit_track(char_to_track_num.at(ch));
+      }
+      catch (out_of_range) {
+        ;
+      }
       break;
     case '?':
       help();
       break;
-    case '\e':                  /* escape */
+    case '\\':
       show_message("Sending panic...");
       sloops->panic(prev_cmd == '\e');
       show_message("Panic sent");
       clear_message_after(5);
       break;
-    case '\\':
-      done = TRUE;
+    case '\e':
+      sloops->current_scene().take_action(0, AllStartStop);
+      break;
+    case 'Q':
+      done = true;
       break;
     case KEY_RESIZE:
       resize_windows();
@@ -98,8 +110,14 @@ void GUI::event_loop() {
 }
 
 void GUI::edit_track(int track_num) {
+  if (track_num < 0 || track_num >= NUM_TRACKS)
+    return;
+
+  char buf[BUFSIZ];
+
+  sprintf(buf, "Track Editor: %c", track_chars[track_num]);
   TrackEditor *ed = new TrackEditor(
-    geom_track_editor_rect(), "Track Editor",
+    geom_track_editor_rect(), buf,
     sloops->outputs(), sloops->current_scene().track(track_num)
   );
   ed->run();
@@ -156,7 +174,7 @@ void GUI::draw_tracks() {
     Track &track = sloops->current_scene().track(i);
     int track_num = i + 1;
     int row = i < 8 ? 1 : 6;
-    int col = (i < 8 ? i : i - 8) * 10 + 2;
+    int col = (i < 8 ? i : i - 8) * 9 + 2;
     TrackStateColorPair color_pair = TC_Empty;
 
     // TODO set track state color
@@ -178,32 +196,33 @@ void GUI::draw_tracks() {
       break;
     }
 
-    color_set(color_pair, nullptr);
+    // Color pair 0 doesn't do the same thing on dark- and light-themed
+    // terminals, so we use reverse mode to draw it instead.
+    if (color_pair == TC_Empty)
+      attron(A_REVERSE);
+    else
+      color_set(color_pair, nullptr);
 
     move(row++, col);
-    addstr("        ");
+    addstr("       ");
 
     move(row++, col);
     addstr("   ");
-
-    if (track_num < 10)
-      addch(' ');
-    else {
-      attron(A_BOLD);
-      addch('0' + (track_num / 10));
-    }
     attron(A_BOLD);
-    addch('0' + track_num % 10);
+    addch(track_chars[i]);
     attroff(A_BOLD);
-
     addstr("   ");
 
     move(row++, col);
-    addstr("        ");
+    addstr("       ");
 
-    color_set(0, nullptr);
+    if (color_pair == TC_Empty)
+      attroff(A_REVERSE);
+    else
+      color_set(0, nullptr);
+
     move(row, col);
-    std::string truncated_name = track.name.substr(0, 8);
+    std::string truncated_name = track.name.substr(0, 7);
     addstr(truncated_name.c_str());
   }
   use_default_colors();

@@ -6,7 +6,15 @@
 
 Track::Track()
   : state(Empty), output(nullptr), channel(0), start_timestamp(0),
-    bank_msb(UNDEFINED), bank_lsb(UNDEFINED), prog(UNDEFINED)
+    bank_msb(UNDEFINED), bank_lsb(UNDEFINED), prog(UNDEFINED),
+    one_shot(false), multi(true)
+{
+}
+
+Track::Track(Track &other)
+  : state(Empty), output(other.output), channel(other.channel), start_timestamp(0),
+    bank_msb(other.bank_msb), bank_lsb(other.bank_lsb), prog(other.prog),
+    one_shot(other.one_shot), multi(other.multi)
 {
 }
 
@@ -16,24 +24,43 @@ void Track::record() {
 }
 
 void Track::overdub() {
+  // If recording, send and store note offs for any current note ons.
+
   // TODO
   state = Overdubbing;
 }
 
 void Track::play() {
+  if (state == Empty)
+    return;
+
+  // If recording or overdubbing, send and store note offs for any current
+  // note ons.
+
   // TODO
+
+  // TODO respect one-shot
+
   state = Playing;
 }
 
 void Track::stop() {
+  if (state == Empty)
+    return;
+
+  // Send note offs for any current note ons.
+
   // TODO
   state = Stopped;
 }
 
 void Track::clear() {
-  // TODO
   events.clear();
   state = Empty;
+}
+
+void Track::undo_redo() {
+  // TODO
 }
 
 void Track::midi_in(PmMessage msg) {

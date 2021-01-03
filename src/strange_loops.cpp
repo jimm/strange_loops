@@ -13,7 +13,7 @@ StrangeLoops *StrangeLoops_instance() {
 }
 
 StrangeLoops::StrangeLoops()
-  : _curr_scene_index(0), _clock(_inputs), _modified(false)
+  : _curr_scene_index(0), _modified(false)
 {
   for (auto &iter : devices()) {
     const PmDeviceInfo *info = iter.second;
@@ -55,19 +55,9 @@ void StrangeLoops::panic(bool send_notes_off) {
 }
 
 void StrangeLoops::start() {
-  update_clock();
 }
 
 void StrangeLoops::stop() {
-  stop_clock();
-}
-
-// ================ clock ================
-
-void StrangeLoops::update_clock() {
-  Scene &curr_scene = current_scene();
-  set_clock_bpm(curr_scene.bpm());
-  start_clock();
 }
 
 // ================ observer / observable ================

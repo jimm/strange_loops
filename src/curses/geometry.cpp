@@ -21,7 +21,7 @@ rect geom_track_editor_rect() {
 
   r.row = LINES / 6;
   r.col = (COLS - 69) / 2;
-  r.height = 21;
+  r.height = 24;
   r.width = 69;
   return r;
 }

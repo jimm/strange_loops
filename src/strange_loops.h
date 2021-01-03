@@ -5,7 +5,6 @@
 #include "observer.h"
 #include "observable.h"
 #include "scene.h"
-#include "clock.h"
 
 #define NUM_SCENES 128
 
@@ -27,17 +26,7 @@ public:
   inline vector<Input *> &inputs() { return _inputs; }
   inline vector<Output *> &outputs() { return _outputs; }
   Scene &current_scene() { return _scenes[_curr_scene_index]; }
-  inline Clock &clock() { return _clock; }
   inline bool is_modified() { return _modified; }
-
-  // ================ clock ================
-  void start_clock() { _clock.start(); }
-  void stop_clock() { _clock.stop(); }
-  void toggle_clock() { if (is_clock_running()) _clock.stop(); else _clock.start(); }
-  void set_clock_bpm(int bpm) { _clock.set_bpm(bpm); }
-  bool is_clock_running() { return _clock.is_running(); }
-  // Get BPM and start/stop from current scene and update state of the clock
-  void update_clock();
 
   // ================ observer / observable ================
   // Only called by storage after data is loaded or saved.
@@ -48,7 +37,6 @@ private:
   vector<Output *> _outputs;
   Scene _scenes[128];
   int _curr_scene_index;
-  Clock _clock;
   bool _modified;
 
   // ================ observer / observable ================

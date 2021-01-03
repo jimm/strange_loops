@@ -12,6 +12,7 @@ public:
   WINDOW *win;
   string title_prefix;
   string title;
+  string hint;
   rect rect;
 
   Window(struct rect r, const char *title_prefix);

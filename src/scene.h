@@ -24,9 +24,6 @@ public:
 
   void initialize(Output *default_output);
 
-  void set_bpm(float bpm);
-  float bpm() { return _bpm; }
-
   // track_num may be ignored if the action is global.
   void take_action(int track_num, Action action);
 
@@ -34,9 +31,14 @@ public:
 
 protected:
   Track _tracks[NUM_TRACKS];
-  float _bpm;
   PmTimestamp _scene_length;    // length of first recorded track
 
+  void all_start_stop();
+  void undo_redo(int track_num);
+  void track_record_overdub_play(int track_num);
+  void track_stop_clear(int track_num);
+  void track_edit(int track_num);
+  void save();
 };
 
 #endif /* SCENE_H */

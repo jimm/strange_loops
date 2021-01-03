@@ -42,6 +42,11 @@ void Window::draw() {
   wattron(win, A_REVERSE);
   waddstr(win, win_title.c_str());
   wattroff(win, A_REVERSE);
+
+  if (!hint.empty()) {
+    wmove(win, rect.height - 2, rect.width - (hint.size() + 2));
+    waddstr(win, hint.c_str());
+  }
 }
 
 int Window::visible_height() {

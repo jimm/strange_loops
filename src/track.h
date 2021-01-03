@@ -26,14 +26,18 @@ public:
   int bank_msb;
   int bank_lsb;
   int prog;
+  bool one_shot;
+  bool multi;
 
   Track();
+  Track(Track &other);
 
   void record();
   void overdub();
   void play();
   void stop();
   void clear();
+  void undo_redo();
 
   void midi_in(PmMessage msg);
   void send(PmEvent *buf, int n);

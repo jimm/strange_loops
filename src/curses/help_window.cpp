@@ -30,6 +30,7 @@ HelpWindow::HelpWindow(struct rect r, const char *win_title)
   : Window(r, nullptr)
 {
   title = win_title;
+  hint = "Hit any key to close this window";
   lines = text_to_lines(read_help());
 }
 
@@ -57,14 +58,16 @@ const char *HelpWindow::read_help() {
 "| Play  | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | a  |  s | d  | f  | g  | h  | j  | k  |\n" \
 "| Stop  | q | w | e | r | t | y | u | i | z  |  x | c  | v  | b  | n  | m  | ,  |\n" \
 "\n" \
+"ESC - All Start / All Stop\n" \
+"\n" \
 "Prefix Commands\n" \
 "\n" \
-"`  Edit track name, output, channel, program change\n" \
-"=  Change BPM (tempo)\n" \
+"`X  - Edit track X name, output, channel, and program change\n" \
+"      Press ` then the track letter to edit\n" \
 "\n" \
-"? - This help\n" \
+"?   - This help\n" \
 "\n" \
-"ESC  - Panic (ESC ESC sends note-offs)\n" \
+"\\  - Panic (\\ \\ sends note-offs)\n" \
 "\n" \
-"\\    - Quit";
+"Q   - Quit";
 }
