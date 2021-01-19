@@ -2,8 +2,10 @@
 #define TRACK_H
 
 #include <string>
+#include <vector>
 #include <porttime.h>
 #include <portmidi.h>
+#include "consts.h"
 #include "output.h"
 
 enum TrackState {
@@ -19,7 +21,7 @@ enum TrackState {
 
 class Track {
 public:
-  std::string name;
+  string name;
   TrackState state;
   Output *output;
   int channel;
@@ -39,7 +41,7 @@ public:
   void clear();
   void undo_redo();
 
-  void midi_in(PmMessage msg);
+  void midi_in(PmEvent e);
   void send(PmEvent *buf, int n);
   void send_program_change();
 
@@ -47,6 +49,12 @@ private:
   PmTimestamp start_timestamp;
   vector<PmEvent> events;
   PmEvent event_buffer[128];
+  bool notes_on[MIDI_CHANNELS][NOTES_PER_CHANNEL];
+  bool sustains_on[MIDI_CHANNELS];
+
+  bool is_note_on(PmMessage msg);
+  bool is_note_off(PmMessage msg);
+  bool is_sustain(PmMessage msg);
 };
 
 #endif /* TRACK_H */

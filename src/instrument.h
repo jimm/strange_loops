@@ -14,8 +14,8 @@ public:
   PortMidiStream *stream;
   bool enabled;
 
-  PmMessage io_messages[MIDI_BUFSIZ]; // testing only
-  int num_io_messages;                // ditto
+  PmEvent io_events[MIDI_BUFSIZ]; // testing only
+  int num_io_events;              // ditto
 
   Instrument(PmDeviceID device_id, const char *device_name,
              const char *name = nullptr);

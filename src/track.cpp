@@ -63,7 +63,24 @@ void Track::undo_redo() {
   // TODO
 }
 
-void Track::midi_in(PmMessage msg) {
+void Track::midi_in(PmEvent e) {
+  if (state != Recording && state != Overdubbing)
+    return;
+  // FIXME overdubbing won't do the right thing yet
+  events.push_back(e);
+
+  PmMessage &msg = e.message;
+  int status = Pm_MessageStatus(msg);
+  int high_nibble = status & 0xf0;
+  int data2 = Pm_MessageData2(msg);
+
+  // Remember note ons, note offs, and sustain controller messages.
+  if (is_note_on(msg))
+    notes_on[status & 0x0f][Pm_MessageData2(msg)] = true;
+  else if (is_note_off(msg))
+    notes_on[status & 0x0f][Pm_MessageData2(msg)] = false;
+  else if (is_sustain(msg))
+    sustains_on[status & 0x0f] = Pm_MessageData2(msg) > 0;
 }
 
 // Sends PmEvents to output with changed MIDI channels.
@@ -97,4 +114,27 @@ void Track::send_program_change() {
 
   if (numevents > 0)
     output->write(events, numevents);
+}
+
+bool Track::is_note_on(PmMessage msg) {
+  int status = Pm_MessageStatus(msg);
+  if ((status & 0xf0) != NOTE_ON)
+    return false;
+  int velocity = Pm_MessageData2(msg);
+  return velocity > 0;
+}
+
+bool Track::is_note_off(PmMessage msg) {
+  int status = Pm_MessageStatus(msg);
+  if (status < NOTE_ON)
+    return true;
+  if ((status & 0xf0) != NOTE_ON)
+    return false;
+  int velocity = Pm_MessageData2(msg);
+  return velocity == 0;
+}
+
+bool Track::is_sustain(PmMessage msg) {
+  int status = Pm_MessageStatus(msg);
+  return (status & 0xf0) == CONTROLLER && Pm_MessageData1(msg) == CC_SUSTAIN;
 }

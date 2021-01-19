@@ -42,7 +42,7 @@ void Output::write(PmEvent *buf, int len) {
     }
   }
   else {
-    for (int i = 0; i < len && num_io_messages < MIDI_BUFSIZ-1; ++i)
-      io_messages[num_io_messages++] = buf[i].message;
+    for (int i = 0; i < len && num_io_events < MIDI_BUFSIZ-1; ++i)
+      io_events[num_io_events++] = buf[i];
   }
 }

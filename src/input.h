@@ -6,7 +6,6 @@
 #include <mutex>
 #include <pthread.h>
 #include <portmidi.h>
-#include "consts.h"
 #include "instrument.h"
 
 using namespace std;
@@ -27,8 +26,8 @@ public:
   void set_track(Track *track);
 
   void enqueue(PmEvent *, int);
-  void read(PmMessage);
-  PmMessage message_from_read_queue();
+  void read(PmEvent);
+  PmEvent event_from_read_queue();
   void stop_read_thread();
 
 protected:
@@ -38,14 +37,8 @@ private:
   Track *_track;                // may be null
   bool _running;
 
-  bool is_note_on(PmMessage msg);
-  bool is_note_off(PmMessage msg);
-  bool is_sustain(PmMessage msg);
-
-  bool notes_on[MIDI_CHANNELS][NOTES_PER_CHANNEL];
-  bool sustains_on[MIDI_CHANNELS];
-  queue<PmMessage> message_queue;
-  mutex message_queue_mutex;
+  queue<PmEvent> event_queue;
+  mutex event_queue_mutex;
   pthread_t read_pthread;
 };
 

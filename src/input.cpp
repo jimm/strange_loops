@@ -59,9 +59,9 @@ void *read_thread(void *in_voidptr) {
   struct timespec rqtp = {0, SLEEP_NANOSECS};
 
   while (in->is_running()) {
-    PmMessage msg = in->message_from_read_queue();
-    if (msg != 0)
-      in->read(msg);
+    PmEvent e = in->event_from_read_queue();
+    if (e.message != 0)         // message is 0 if nothing to process
+      in->read(e);
     else {
       if (nanosleep(&rqtp, nullptr) == -1)
         return nullptr;
@@ -165,70 +165,37 @@ bool Input::start_midi() {
 // Adds all the PmMessages in `events` to our message queue in a thread-safe
 // manner.
 void Input::enqueue(PmEvent *events, int num) {
-  message_queue_mutex.lock();
+  event_queue_mutex.lock();
   for (int i = 0; i < num; ++i)
-    message_queue.push(events[i].message);
-  message_queue_mutex.unlock();
+    event_queue.push(events[i]);
+  event_queue_mutex.unlock();
 }
 
-void Input::read(PmMessage msg) {
+void Input::read(PmEvent e) {
   if (!enabled && real_port())
     return;
 
-  int status = Pm_MessageStatus(msg);
-  int high_nibble = status & 0xf0;
-  int data2 = Pm_MessageData2(msg);
-
   if (_track)
-    _track->midi_in(msg);
-
-  // Remember note ons, note offs, and sustain controller messages.
-  if (is_note_on(msg))
-    notes_on[status & 0x0f][Pm_MessageData2(msg)] = true;
-  else if (is_note_off(msg))
-    notes_on[status & 0x0f][Pm_MessageData2(msg)] = false;
-  else if (is_sustain(msg))
-    sustains_on[status & 0x0f] = Pm_MessageData2(msg) > 0;
+    _track->midi_in(e);
 
   // When testing, remember the messages we've seen. This could be made
   // more efficient by doing a bulk copy before or after this for loop,
   // making sure not to copy over the end of received_messages.
-  if (!real_port() && num_io_messages < MIDI_BUFSIZ-1)
-    io_messages[num_io_messages++] = msg;
+  if (!real_port() && num_io_events < MIDI_BUFSIZ-1)
+    io_events[num_io_events++] = e;
 }
 
 // Removes a single PmMessages from our message queue in a thread-safe
 // manner and returns it.
-PmMessage Input::message_from_read_queue() {
-  PmMessage msg = 0;
-  message_queue_mutex.lock();
-  if (!message_queue.empty()) {
-    msg = message_queue.front();
-    message_queue.pop();
+PmEvent Input::event_from_read_queue() {
+  PmEvent e;
+  event_queue_mutex.lock();
+  if (!event_queue.empty()) {
+    e = event_queue.front();
+    event_queue.pop();
   }
-  message_queue_mutex.unlock();
-  return msg;
-}
-
-bool Input::is_note_on(PmMessage msg) {
-  int status = Pm_MessageStatus(msg);
-  if ((status & 0xf0) != NOTE_ON)
-    return false;
-  int velocity = Pm_MessageData2(msg);
-  return velocity > 0;
-}
-
-bool Input::is_note_off(PmMessage msg) {
-  int status = Pm_MessageStatus(msg);
-  if (status < NOTE_ON)
-    return true;
-  if ((status & 0xf0) != NOTE_ON)
-    return false;
-  int velocity = Pm_MessageData2(msg);
-  return velocity == 0;
-}
-
-bool Input::is_sustain(PmMessage msg) {
-  int status = Pm_MessageStatus(msg);
-  return (status & 0xf0) == CONTROLLER && Pm_MessageData1(msg) == CC_SUSTAIN;
+  else
+    e.message = 0;              // nothing to process
+  event_queue_mutex.unlock();
+  return e;
 }

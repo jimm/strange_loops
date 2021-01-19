@@ -5,9 +5,8 @@
 
 Instrument::Instrument(PmDeviceID dev_id, const char *dev_device_name, const char *c_name)
   : name(c_name == nullptr ? dev_device_name : c_name),
-    device_id(dev_id), device_name(dev_device_name), enabled(false)
+    device_id(dev_id), device_name(dev_device_name), enabled(false), num_io_events(0)
 {
-  num_io_messages = 0;
 }
 
 bool Instrument::real_port() {
@@ -40,5 +39,5 @@ void Instrument::stop_midi() {
 
 // only used during testing
 void Instrument::clear() {
-  num_io_messages = 0;
+  num_io_events = 0;
 }
