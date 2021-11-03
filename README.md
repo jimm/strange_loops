@@ -19,7 +19,9 @@ Scenes can be loaded from and saved to MIDI files.
 
 ### Requirements
 
-- The [PortMidi](http://portmedia.sourceforge.net/portmidi/) library
+- The [PortMidi](http://portmedia.sourceforge.net/portmidi/) library. If you
+  use [Homebrew](https://brew.sh/) it's a simple `brew install portmidi`
+  away.
 - A C++11 compiler and the `make` program
 
 ### Making Strange Loops

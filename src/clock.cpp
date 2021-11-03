@@ -1,8 +1,10 @@
 #include <sys/time.h>
+#include "consts.h"
 #include "clock.h"
 #include "input.h"
 
 static PmMessage CLOCK_MESSAGE = Pm_Message(CLOCK, 0, 0);
+static PmEvent CLOCK_EVENT = {CLOCK_MESSAGE, (PmTimestamp)0};
 
 void *clock_send_thread(void *clock_ptr) {
   struct timespec rqtp = {0, 0L};
@@ -62,7 +64,7 @@ long Clock::tick() {
   long start_msecs = (tp.tv_sec * 1000L) + tp.tv_usec;
 
   for (auto &input : inputs)
-    input->read(CLOCK_MESSAGE);
+    input->read(CLOCK_EVENT);
 
   if (tick_within_beat == 0)
     changed((void *)ClockChangeBeat);
