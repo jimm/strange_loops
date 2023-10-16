@@ -115,7 +115,7 @@ void GUI::edit_track(int track_num) {
 
   char buf[BUFSIZ];
 
-  sprintf(buf, "Track Editor: %c", track_chars[track_num]);
+  snprintf(buf, BUFSIZ, "Track Editor: %c", track_chars[track_num]);
   TrackEditor *ed = new TrackEditor(
     geom_track_editor_rect(), buf,
     sloops->outputs(), sloops->current_scene().track(track_num)

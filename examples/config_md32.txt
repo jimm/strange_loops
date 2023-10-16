@@ -14,7 +14,8 @@
   - {output: {device: Kronos SOUND, channel: 8}}
   - {output: {device: Kronos SOUND, channel: 9}}
   - {output: {device: Kronos SOUND, channel: 10}}
-  - {output: {device: Hydrasynth HYDRASYNTH KB, channel: 1}}
+  - {output: {device: Hydrasynth HYDRASYNTH KB, channel: 2}}
+  - {output: {device: Iridium Keyboard, channel: 3}}
   - {output: {device: Wavestation, channel: 1}}
   - {output: {device: K2000R, channel: 1}}
   - {output: {device: K2000R, channel: 2}}

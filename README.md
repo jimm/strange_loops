@@ -22,7 +22,10 @@ Scenes can be loaded from and saved to MIDI files.
 - The [PortMidi](http://portmedia.sourceforge.net/portmidi/) library. If you
   use [Homebrew](https://brew.sh/) it's a simple `brew install portmidi`
   away.
-- A C++11 compiler and the `make` program
+- [Catch2](https://github.com/catchorg/Catch2) for running the tests. It's
+  known as "catch2" in brew.
+- ncurses (probably already on your system).
+- A C++14 compiler and the `make` program.
 
 ### Making Strange Loops
 
